@@ -41,9 +41,11 @@ board[2] = {}
 --Variables 
 local _W = display.contentWidth / 2
 local _H = display.contentHeight / 2
+local gameTurns = "player1"
 local turn = "player1"
 local  drawPlayerTurn
 local drawScore1, drawScore2
+local count = 0
 
 function mainMenuScreen()
 	mmGroup = display.newGroup()
@@ -147,6 +149,8 @@ function addGameScreen()
 end
 
 function backToMainMenu(event)
+	turn = gameTurns
+
 	gameScreenGroup:removeSelf()
 	gameScreenGroup = nil
 
@@ -158,6 +162,11 @@ function backToMainMenu(event)
 
 	lineGroup:removeSelf()
 	lineGroup = nil
+
+	board = {}
+	board[0] = {}
+	board[1] = {}
+	board[2] = {}
 
 	mmGroup.alpha = 1
 
@@ -242,6 +251,7 @@ function displayXO(event)
 			icon = display.newImage("images/x.png", event.target.x, event.target.y)
 			icon.height = 90; icon.width = 90	
 			iconGroup:insert(icon)
+			count = count + 1
 		else
 			board[location1][location2] = "O"
 			turn = "player1"
@@ -249,6 +259,7 @@ function displayXO(event)
 			icon = display.newImage("images/o.png", event.target.x, event.target.y)
 			icon.height = 90; icon.width = 90
 			iconGroup:insert(icon)
+			count = count + 1
 		end
 
 		isWin = checkWin()
@@ -256,6 +267,18 @@ function displayXO(event)
 			boxGroup:removeSelf()
 			boxGroup = nil
 			timer.performWithDelay(1000, win)
+			 if gameTurns == "player1" then
+			 	gameTurns = "player2"
+
+			 else 
+			 	gameTurns = "player1"
+			 end
+		elseif count == 9 then
+			boxGroup:removeSelf()
+			boxGroup = nil
+			timer.performWithDelay(1000, removeGroup)
+		else
+			print("not win" .. count)
 		end
 	end
 	event.target:removeEventListener("tap", displayXO)
@@ -269,7 +292,11 @@ function win()
 		p1Score = p1Score + 1
 		drawScore1.text = p1Score
 	end
+	removeGroup()
+end
 
+function removeGroup()
+	count = 0
 	lineGroup:removeSelf()
 	lineGroup = nil
 
@@ -295,8 +322,16 @@ function nextGame()
 	board[2] = {}
 
 	isWin = false
-	turn = "player1"
-	drawPlayerTurn.text = "X Turn"
+
+	if gameTurns == "player1" then
+		turn = gameTurns
+		drawPlayerTurn.text = "X Turn"
+	else
+		turn = gameTurns
+		drawPlayerTurn.text = "O Turn"
+			print(gameTurns, turn)
+	end
+
 end
 
 function checkWin()
